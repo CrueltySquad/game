@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html>
+<body>
+<canvas id="myCanvas" width="500" height="500" style="border:1px solid #d3d3d3;">
+Your browser does not support the HTML5 canvas tag.
+</canvas>
+
+<script>
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+// Define the block character
+var block = {
+  x: 250,
+  y: 450,
+  width: 50,
+  height: 50,
+  color: "blue",
+  speed: 2,
+  velocityY: 0
+};
+
+// Define gravity
+var gravity = 0.5;
+
+// Define the obstacles
+var obstacle = {
+  x: 550,
+  y: 0,
+  width: 50,
+  height: 50,
+  speed: -2,
+  color: "red"
+};
+
+// Function to draw the block character
+function drawBlock() {
+  ctx.fillStyle = block.color;
+  ctx.fillRect(block.x, block.y, block.width, block.height);
+}
+
+// Function to draw the obstacles
+function drawObstacles() {
+  ctx.fillStyle = obstacle.color;
+  ctx.fillRect(obstacle.x, obstacle.y, obstacle.width, obstacle.height);
+}
+
+// Function to update the block character's position
+function updateBlock() {
+  block.y += block.velocityY;
+  block.velocityY += gravity;
+
+  // If the block character hits the ground, reset the gravity
+  if (block.y + block.height > canvas.height) {
+    block.y = canvas.height - block.height;
+    block.velocityY = 0;
+  }
+
+  // If the block character hits an obstacle, restart the game
+  if (block.x < obstacle.x + obstacle.width &&
+      block.x + block.width > obstacle.x &&
+      block.y < obstacle.y + obstacle.height &&
+      block.y + block.height > obstacle.y) {
+    block.x = 250;
+    block.y = 450;
+    obstacle.x = 550;
+    obstacle.y = 0;
+  }
+}
+
+// Function to update the obstacles' position
+function updateObstacles() {
+  obstacle.x += obstacle.speed;
+
+  // If the obstacle goes off the screen, reset it
+  if (obstacle.x + obstacle.width < 0) {
+    obstacle.x = 550;
+    obstacle.y = Math.floor(Math.random() * (canvas.height - obstacle.height));
+  }
+}
+
+// Function to handle keyboard input
+function keyDownHandler(e) {
+  if (e.key == "w") {
+    block.velocityY = -5;
+  }
+  if (e.key == "a") {
+    block.x -= block.speed;
+  }
+  if (e.key == "s") {
+    block.velocityY = 5;
+  }
+  if (e.key == "d") {
+    block.x += block.speed;
+  }
+}
+
+// Function to handle keyboard up input
+function keyUpHandler(e) {
+  if (e.key == "w" || e.key == "s") {
+    block.velocityY = 0;
+  }
+}
+
+// Set up the canvas
+document.addEventListener('keydown', keyDownHandler, false);
+document.addEventListener('keyup', keyUpHandler, false);
+
+// Game loop
+function gameLoop() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  drawBlock();
+  drawObstacles();
+  updateBlock();
+  updateObstacles();
+  requestAnimationFrame(gameLoop);
+}
+
+gameLoop();
+</script>
